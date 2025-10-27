@@ -5,17 +5,23 @@ from transformers import DistilBertForSequenceClassification, DistilBertTokenize
 from datasets import DatasetDict, load_from_disk
 from sklearn.metrics import classification_report, confusion_matrix
 import numpy as np
+from torch.utils.data import DataLoader
 
 # Paths y configuraciones
 MODEL_PATH = "./models/final_model"
 DATASET_PATH = r"C:\Users\imlud\PycharmProjects\TFG_Modelo_NLP\data\DS_ABL_BUTTERFLY"
+BATCH_SIZE = 32  # Ajusta según tu RAM o GPU
 
 label_map = {0: "Ant", 1: "Bee", 2: "Leech", 3: "Butterfly"}
-id2label = {v: k for k, v in label_map.items()}
+
+# Detectar si hay GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"⚡ Using device: {device}")
 
 # Cargar modelo y tokenizer
 model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
 tokenizer = DistilBertTokenizerFast.from_pretrained(MODEL_PATH)
+model.to(device)
 model.eval()
 
 # Cargar dataset de test
@@ -24,21 +30,29 @@ test_dataset = dataset["test"]
 
 print(f"✅ Test samples loaded: {len(test_dataset)}")
 
-# Realizar predicciones
+# DataLoader para batches
+dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
+
+# Listas para métricas
 y_true = []
 y_pred = []
 
-for example in test_dataset:
-    text = example["text"]
-    label = example["labels"]
+# Iterar por batches
+for batch in dataloader:
+    texts = batch["text"]
+    labels = batch["labels"]
 
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=128)
+    # Tokenizar batch
+    inputs = tokenizer(list(texts), return_tensors="pt", truncation=True, padding=True, max_length=128)
+    inputs = {k: v.to(device) for k, v in inputs.items()}
+
+    # Inferencia
     with torch.no_grad():
         outputs = model(**inputs)
-        pred = torch.argmax(outputs.logits, dim=-1).item()
+        preds = torch.argmax(outputs.logits, dim=-1)
 
-    y_true.append(label)
-    y_pred.append(pred)
+    y_true.extend(labels)
+    y_pred.extend(preds.cpu().tolist())
 
 # Métricas y análisis
 print("\n📈 Classification Report:")
