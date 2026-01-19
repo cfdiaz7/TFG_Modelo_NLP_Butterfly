@@ -1,7 +1,7 @@
 from datasets import DatasetDict, load_from_disk, concatenate_datasets
 
 # Cargar datasets existentes
-path_abl = r"C:\Users\imlud\PycharmProjects\TFG_Modelo_NLP\data\DS_ABL_trad_final"
+path_abl = r"C:\Users\imlud\PycharmProjects\TFG_Modelo_NLP\scripts\DS_ABL_trad_final"
 path_butterfly = r"C:\Users\imlud\PycharmProjects\TFG_Modelo_NLP\data\DS_BUTTERFLY"
 
 dataset_abl = DatasetDict.load_from_disk(path_abl)

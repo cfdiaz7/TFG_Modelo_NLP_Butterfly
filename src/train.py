@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 
 # Cargar dataset combinado
 def load_data():
-    dataset_path = r"C:\Users\imlud\PycharmProjects\TFG_Modelo_NLP\data\DS_ABL_BUTTERFLY"
+    dataset_path = r"C:\Users\imlud\PycharmProjects\TFG_Modelo_NLP\data\DS_ABL_BUTTERFLY_V2"
     dataset_dict = DatasetDict.load_from_disk(dataset_path)
 
     # Cargar splits

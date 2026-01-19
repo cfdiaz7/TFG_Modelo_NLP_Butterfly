@@ -12,3 +12,5 @@ __pycache__/
 
 .idea/
 src/create_butterfly_dataset.py
+
+/scripts/
